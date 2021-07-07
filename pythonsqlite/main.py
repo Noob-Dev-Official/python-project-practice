@@ -13,26 +13,12 @@ c = conn.cursor()
 # REAL
 # BLOB
 
-# create a table
-# c.execute(
-# """
-#    CREATE TABLE Customers (
-#       CustomerID INT PRIMARY KEY,
-#       FirstName TEXT,
-#       LastName TEXT
-#       Email TEXT
-#    )
-
-# """
-# )
-
 # data insertion
-# c.execute(
-#    """
-#       INSERT INTO Customers 
-#          VALUES ("John", "Don", "test@test.com")
-#    """
-# )
+many_customers = [
+   ("Wes", "Brown", "wes@test.com"),
+   ("Mary", "Brown", "mary@test.com"),
+   ("Les", "Brown", "les@test.com"),
+]
 
 c.execute(
    """
@@ -48,10 +34,8 @@ c.execute(
    """
 )
 
-c.execute(
-   """
-      SELECT * FROM Customers
-   """
+c.executemany(
+   "INSERT INTO Customers VALUES (?,?,?)", many_customers
 )
 
 # commit our command
@@ -60,4 +44,4 @@ conn.commit()
 # close our connection (by default, the file closes it but it is a good practice to close it)
 conn.close()
 
-print("hello")
+print("Done")
