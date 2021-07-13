@@ -1,20 +1,19 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, abort, session, jsonify
+from flask import render_template, request, redirect, url_for, flash, abort, session, jsonify, Blueprint
 import json
 import os.path
 from werkzeug.utils import secure_filename
 
-app = Flask(__name__) # __name__ is the name of the file i believe
-app.secret_key = 'fagadfasdf'
+bp = Blueprint('urlshort', __name__)
 
 # home route along with home function which says which one is the homepage
-@app.route('/')
+@bp.route('/')
 def home():
 	return render_template('index.html', codes=session.keys()) # render template allows you to render html pages
 
 # route for allowing the webpage to share the input given by the user
 # Using POST allows us to hide the info from the search engine but GET shows them
 # We have put both the methods inside the methods params of route so that we can make conditional statements for them to avoid the users/webpage from making GET requests...
-@app.route('/your-url', methods=["GET", "POST"])
+@bp.route('/your-url', methods=["GET", "POST"])
 def your_url():
 	if request.method == 'POST':
 		urls = {}
@@ -26,7 +25,7 @@ def your_url():
 		# check if the key has been taken and saved in JSON file
 		if request.form['code'] in urls.keys():
 			flash("That short name has already been taken.") # flashing messages
-			return redirect(url_for('home'))
+			return redirect(url_for('urlshort.home'))
 
 		# check if it is a file or URL
 		if 'url' in request.form.keys():
@@ -36,7 +35,7 @@ def your_url():
 			f = request.files['file']
 			full_name = request.form['code'] + secure_filename(f.filename) # secure_file checks whether if the file is secure and not a virus
 
-			f.save('/home/bimec/Python-project-practice/url_shortener_flask/static/user_files/' + full_name)
+			f.save('/home/bimec/Python-project-practice/url_shortener_flask/urlshort/static/user_files/' + full_name)
 
 			# save the file url request inside JSON file
 			urls[request.form["code"]] = {'file': full_name}
@@ -51,11 +50,11 @@ def your_url():
 
 		return render_template('your_url.html', code=request.form["code"]) # request.form allows you to request for inputs which has name="code"
 	else:
-		return redirect(url_for('home')) # redirect will redirect user to the url. url_for is being used so that it can get the home url automatically from home() function 
+		return redirect(url_for('urlshort.home')) # redirect will redirect user to the url. url_for is being used so that it can get the home url automatically from home() function 
 		# doing www.localhost.com/your-url will take the user to homepage because of this else statement
 
 # it says, look for any sort of string after the '/' then put them in variable 'code'
-@app.route('/<string:code>')
+@bp.route('/<string:code>')
 def redirect_to_url(code):
 	if os.path.exists('urls.json'):
 		with open('urls.json') as urls_file:
@@ -76,13 +75,13 @@ def redirect_to_url(code):
 	return abort(404)
 
 # custom route for error 404 page
-@app.errorhandler(404)
+@bp.errorhandler(404)
 def page_not_found(error):
 	return render_template('error_404.html'), 404
 
 
 # for api
-@app.route('/api')
+@bp.route('/api')
 def session_api():
 	return jsonify(list(session.keys()))
 

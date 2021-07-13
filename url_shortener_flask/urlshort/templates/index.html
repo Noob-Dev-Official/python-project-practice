@@ -49,7 +49,7 @@
 	<ul>
 		{% for code in codes %}
 		<!-- we have created redirect_to_url function which returns with the link when we provide the code (short code user wantd) -->
-		<li><a href="{{ url_for('redirect_to_url', code=code)}}" target="_blank">{{ code }}</a></li>
+		<li><a href="{{ url_for('urlshort.redirect_to_url', code=code)}}" target="_blank">{{ code }}</a></li>
 		{% endfor %}
 	</ul>
 	{% endif %}
