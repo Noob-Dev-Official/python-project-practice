@@ -1,35 +1,60 @@
-<h1>URL Shortener</h1>
+<!doctype html>
+<html lang="en">
 
-{% for message in get_flashed_messages() %}
-<h2>{{ message }}</h2>
-{% endfor %}
+<!-- block is like react layout that we create to add header and footer in every single page -->
+{% extends 'base.html' %}
+<head>
+	
+	<title>{% block title %}URL Shortener{% endblock %}</title>
 
-<form action="your-url" method="post">
-	<div>
-		<label for="url">Website URL</label>
-		<input type="url" name="url" value="" required>
-	</div>
-	<div>
-		<label for="code">Short Name</label>
-		<input type="text" name="code" value="" required>
-	</div>
-	<div>
-		<input type="submit" name="submit" value="Shorten">
-	</div>
-</form>
+</head>
 
-<!-- for file uploading -->
-<!-- we add enctype just to say that this form accept file uploads -->
-<form action="your-url" method="post" enctype="multipart/form-data">
-	<div>
-		<label for="file">File</label>
-		<input type="file" name="file" value="" required>
-	</div>
-	<div>
-		<label for="code">Short Name</label>
-		<input type="text" name="code" value="" required>
-	</div>
-	<div>
-		<input type="submit" name="submit" value="Shorten">
-	</div>
-</form>
+<body>
+	{% block main %}
+	<h1>URL Shortener</h1>
+
+	<form action="your-url" method="post">
+		<div>
+			<label for="url">Website URL</label>
+			<input type="url" name="url" value="" required>
+		</div>
+		<div>
+			<label for="code">Short Name</label>
+			<input type="text" name="code" value="" required>
+		</div>
+		<div>
+			<input type="submit" name="submit" value="Shorten">
+		</div>
+	</form>
+
+	<!-- for file uploading -->
+	<!-- we add enctype just to say that this form accept file uploads -->
+	<form action="your-url" method="post" enctype="multipart/form-data">
+		<div>
+			<label for="file">File</label>
+			<input type="file" name="file" value="" required>
+		</div>
+		<div>
+			<label for="code">Short Name</label>
+			<input type="text" name="code" value="" required>
+		</div>
+		<div>
+			<input type="submit" name="submit" value="Shorten">
+		</div>
+	</form>
+
+	<!-- for displaying the cookies -->
+	{% if codes %}
+	<h2>Codes you have created</h2>
+	<ul>
+		{% for code in codes %}
+		<!-- we have created redirect_to_url function which returns with the link when we provide the code (short code user wantd) -->
+		<li><a href="{{ url_for('redirect_to_url', code=code)}}" target="_blank">{{ code }}</a></li>
+		{% endfor %}
+	</ul>
+	{% endif %}
+
+
+	{% endblock %}
+</body>
+</html>
