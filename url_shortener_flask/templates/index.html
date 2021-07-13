@@ -17,3 +17,19 @@
 		<input type="submit" name="submit" value="Shorten">
 	</div>
 </form>
+
+<!-- for file uploading -->
+<!-- we add enctype just to say that this form accept file uploads -->
+<form action="your-url" method="post" enctype="multipart/form-data">
+	<div>
+		<label for="file">File</label>
+		<input type="file" name="file" value="" required>
+	</div>
+	<div>
+		<label for="code">Short Name</label>
+		<input type="text" name="code" value="" required>
+	</div>
+	<div>
+		<input type="submit" name="submit" value="Shorten">
+	</div>
+</form>

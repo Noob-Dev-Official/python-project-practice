@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, abort
 import json
 import os.path
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__) # __name__ is the name of the file i believe
 app.secret_key = 'fagadfasdf'
@@ -22,12 +23,26 @@ def your_url():
 			with open('urls.json') as urls_file:
 				urls = json.load(urls_file)
 
+		# check if the key has been taken and saved in JSON file
 		if request.form['code'] in urls.keys():
 			flash("That short name has already been taken.") # flashing messages
 			return redirect(url_for('home'))
 
+		# check if it is a file or URL
+		if 'url' in request.form.keys():
+			urls[request.form["code"]] = {'url': request.form["url"]}
+		else:
+			# save the file
+			f = request.files['file']
+			full_name = request.form['code'] + secure_filename(f.filename) # secure_file checks whether if the file is secure and not a virus
 
-		urls[request.form["code"]] = {'url': request.form["url"]}
+			f.save('/home/bimec/Python-project-practice/url_shortener_flask/static/user_files/' + full_name)
+
+			# save the file url request inside JSON file
+			urls[request.form["code"]] = {'file': full_name}
+
+
+		
 		with open('urls.json', 'w') as url_file: # with open allows you to open/create a file with another param 'w' to specify that you are writing to the file
 			json.dump(urls, url_file)
 
@@ -35,3 +50,32 @@ def your_url():
 	else:
 		return redirect(url_for('home')) # redirect will redirect user to the url. url_for is being used so that it can get the home url automatically from home() function 
 		# doing www.localhost.com/your-url will take the user to homepage because of this else statement
+
+# it says, look for any sort of string after the '/' then put them in variable 'code'
+@app.route('/<string:code>')
+def redirect_to_url(code):
+	if os.path.exists('urls.json'):
+		with open('urls.json') as urls_file:
+			urls = json.load(urls_file)
+
+			# checks if the code is in the URLs dict/JSON file
+			if code in urls.keys():
+				# checks if its an url or file to open
+				if 'url' in urls[code].keys():
+					return redirect(urls[code]['url'])
+				else:
+					# load the file statically
+					file_url = url_for('static', filename='user_files/' + urls[code]['file'])
+
+					return redirect(file_url)
+
+	# if nothing works/if the code is wrong or if it is something not found inside the JSON file, then we abort/show proper error mssg
+	return abort(404)
+
+# custom route for error 404 page
+@app.errorhandler(404)
+def page_not_found(error):
+	return render_template('error_404.html'), 404
+
+				
+
